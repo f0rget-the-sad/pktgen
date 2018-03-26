@@ -543,9 +543,10 @@ set_cmd(int argc, char **argv)
 }
 
 static struct cli_map pcap_map[] = {
-	{ 10, "pcap index" },
+	{ 10, "pcap index %s" },
 	{ 20, "pcap show" },
 	{ 30, "pcap filter %P %s" },
+	{ 40, "pcap si" },
     { -1, NULL }
 };
 
@@ -574,8 +575,7 @@ pcap_cmd(int argc, char **argv)
 		case 10:
 			pcap = pktgen.info[pktgen.portNum].pcap;
 			max_cnt = pcap->pkt_count;
-			value = strtoul(argv[1], NULL, 10);
-
+			value = strtoul(argv[2], NULL, 10);
 			if (pcap) {
 				if (value >= max_cnt)
 					pcap->pkt_idx = max_cnt - RTE_MIN(PCAP_PAGE_SIZE, (int)max_cnt);
@@ -598,6 +598,9 @@ pcap_cmd(int argc, char **argv)
 			foreach_port(portlist,
 				pcap_filter(info, argv[3]) );
 			break;
+        case 40:
+			pcap = pktgen.info[pktgen.portNum].pcap;
+            pktgen_log_error("Pcap file index %d,\n Pcap file count %d", pcap->pkt_idx, pcap->pkt_count);
 		default:
 			return cli_cmd_error("PCAP command invalid", "PCAP", argc, argv);
 	}
