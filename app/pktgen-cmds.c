@@ -1984,6 +1984,7 @@ enable_gre(port_info_t *info, uint32_t onOff)
  */
 
 void
+://github.com/pktgen/Pktgen-DPDK/issues/94
 enable_gre_eth(port_info_t *info, uint32_t onOff)
 {
 	if (onOff == ENABLE_STATE) {
@@ -3320,4 +3321,3 @@ void
 pktgen_quit(void)
 {
 	cli_quit();
-}

@@ -543,18 +543,18 @@ set_cmd(int argc, char **argv)
 }
 
 static struct cli_map pcap_map[] = {
-	{ 10, "pcap index" },
+	{ 10, "pcap index %s" },
 	{ 20, "pcap show" },
 	{ 30, "pcap filter %P %s" },
-    { 40, "pcap swap %s %s" },
-    { -1, NULL }
+  { 40, "pcap swap %s %s" },
+  { -1, NULL }
 };
 
 static const char *pcap_help[] = {
 	"pcap show                          - Show PCAP information",
 	"pcap index                         - Move the PCAP file index to the given packet number,  0 - rewind, -1 - end of file",
 	"pcap filter <portlist> <string>    - PCAP filter string to filter packets on receive",
-    "pcap swap <port> <filename>        - Swap pcap file",
+  "pcap swap <port> <filename>        - Swap pcap file",
 	"",
 	NULL
 };
@@ -576,8 +576,7 @@ pcap_cmd(int argc, char **argv)
 		case 10:
 			pcap = pktgen.info[pktgen.portNum].pcap;
 			max_cnt = pcap->pkt_count;
-			value = strtoul(argv[1], NULL, 10);
-
+			value = strtoul(argv[2], NULL, 10);
 			if (pcap) {
 				if (value >= max_cnt)
 					pcap->pkt_idx = max_cnt - RTE_MIN(PCAP_PAGE_SIZE, (int)max_cnt);

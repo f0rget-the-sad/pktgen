@@ -341,8 +341,9 @@ pktgen_seq(lua_State *L) {
 
 	switch (lua_gettop(L) ) {
 	default: return luaL_error(L, "seq, wrong number of arguments");
-	case 12:
-	case 13:
+	case 15:
+	//case 12:
+	//case 13:
 		break;
 	}
 	seqnum = luaL_checkinteger(L, 1);
