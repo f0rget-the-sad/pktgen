@@ -546,6 +546,7 @@ static struct cli_map pcap_map[] = {
 	{ 10, "pcap index" },
 	{ 20, "pcap show" },
 	{ 30, "pcap filter %P %s" },
+    { 40, "pcap swap %s %s" },
     { -1, NULL }
 };
 
@@ -553,6 +554,7 @@ static const char *pcap_help[] = {
 	"pcap show                          - Show PCAP information",
 	"pcap index                         - Move the PCAP file index to the given packet number,  0 - rewind, -1 - end of file",
 	"pcap filter <portlist> <string>    - PCAP filter string to filter packets on receive",
+    "pcap swap <port> <filename>        - Swap pcap file",
 	"",
 	NULL
 };
@@ -598,6 +600,25 @@ pcap_cmd(int argc, char **argv)
 			foreach_port(portlist,
 				pcap_filter(info, argv[3]) );
 			break;
+        case 40:
+            int port = atoi(argv[2]);
+            char *filename = argv[3];
+            rxtx_t rt;
+            rt.rxtx = get_map(pktgen.l2p, port, RTE_MAX_LCORE);
+            if ((filename == NULL) ||
+                (pktgen.info[port].pcap =
+                    _pcap_open(filename, port)) == NULL) {
+                pktgen_log_error(
+                    "Invalid PCAP filename (%s) must include port number as P:filename", argv[2]);
+            }
+            port_info_t *info = &pktgen.info[port];
+            pcap_info_t *pcap = pktgen.info[port].pcap;
+            for (int q = 0; q < rt.tx; q++){
+                if (pktgen_pcap_parse(pcap, info, q) == -1)
+                    pktgen_log_panic("Cannot load PCAP file for port %d", port);
+            }
+            pktgen_screen(ENABLE_STATE);
+            break;
 		default:
 			return cli_cmd_error("PCAP command invalid", "PCAP", argc, argv);
 	}
