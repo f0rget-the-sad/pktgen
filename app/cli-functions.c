@@ -543,18 +543,18 @@ set_cmd(int argc, char **argv)
 }
 
 static struct cli_map pcap_map[] = {
-	{ 10, "pcap index %s" },
+	{ 10, "pcap index" },
 	{ 20, "pcap show" },
 	{ 30, "pcap filter %P %s" },
-  { 40, "pcap swap %s %s" },
-  { -1, NULL }
+    { 40, "pcap swap %s" },
+    { -1, NULL }
 };
 
 static const char *pcap_help[] = {
 	"pcap show                          - Show PCAP information",
 	"pcap index                         - Move the PCAP file index to the given packet number,  0 - rewind, -1 - end of file",
 	"pcap filter <portlist> <string>    - PCAP filter string to filter packets on receive",
-  "pcap swap <port> <filename>        - Swap pcap file",
+    "pcap swap <filename>        - Swap pcap file on current port",
 	"",
 	NULL
 };
@@ -576,7 +576,8 @@ pcap_cmd(int argc, char **argv)
 		case 10:
 			pcap = pktgen.info[pktgen.portNum].pcap;
 			max_cnt = pcap->pkt_count;
-			value = strtoul(argv[2], NULL, 10);
+			value = strtoul(argv[1], NULL, 10);
+
 			if (pcap) {
 				if (value >= max_cnt)
 					pcap->pkt_idx = max_cnt - RTE_MIN(PCAP_PAGE_SIZE, (int)max_cnt);
@@ -600,23 +601,7 @@ pcap_cmd(int argc, char **argv)
 				pcap_filter(info, argv[3]) );
 			break;
         case 40:
-            int port = atoi(argv[2]);
-            char *filename = argv[3];
-            rxtx_t rt;
-            rt.rxtx = get_map(pktgen.l2p, port, RTE_MAX_LCORE);
-            if ((filename == NULL) ||
-                (pktgen.info[port].pcap =
-                    _pcap_open(filename, port)) == NULL) {
-                pktgen_log_error(
-                    "Invalid PCAP filename (%s) must include port number as P:filename", argv[2]);
-            }
-            port_info_t *info = &pktgen.info[port];
-            pcap_info_t *pcap = pktgen.info[port].pcap;
-            for (int q = 0; q < rt.tx; q++){
-                if (pktgen_pcap_parse(pcap, info, q) == -1)
-                    pktgen_log_panic("Cannot load PCAP file for port %d", port);
-            }
-            pktgen_screen(ENABLE_STATE);
+            pcap_swap(&pktgen.info[pktgen.portNum], argv[2]);
             break;
 		default:
 			return cli_cmd_error("PCAP command invalid", "PCAP", argc, argv);

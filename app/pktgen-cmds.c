@@ -1090,7 +1090,7 @@ void
 pktgen_screen(int state)
 {
 	uint16_t rows;
-
+    
 	pktgen_display_get_geometry(&rows, NULL);
 
 	if (state == DISABLE_STATE) {
@@ -1562,6 +1562,43 @@ pcap_filter(port_info_t *info, char *str)
 
 /**************************************************************************//**
  *
+ * pcap_swap - Swap or add PCAP file to port. 
+ *
+ * DESCRIPTION
+ * Swap or add PCAP file to port. 
+ *
+ * RETURNS: 0 if success, negative otherwise
+ *
+ * SEE ALSO:
+ */
+
+int
+pcap_swap(port_info_t *info, char *filename){
+    int port = pktgen.portNum;
+    rxtx_t rt;
+    rt.rxtx = get_map(pktgen.l2p, port, RTE_MAX_LCORE);
+    if ((filename == NULL) ||
+        (pktgen.info[port].pcap =
+            _pcap_open(filename, port)) == NULL) {
+                pktgen_log_error(
+                "Invalid PCAP filename (%s) must include port number as P:filename", filename);
+                return -1;
+            }
+    for (int qid = 0; qid < rt.tx; qid++){
+        if (info->q[qid].pcap_mp){
+            rte_mempool_free(info->q[qid].pcap_mp);
+        }
+        if (pktgen_pcap_parse(pktgen.info[port].pcap, info, qid) == -1){
+            pktgen_log_panic("Cannot load PCAP file for port %d", port);
+            return -1;
+        }
+    }
+    //pktgen_screen(ENABLE_STATE);
+    return 0;
+}
+
+/**************************************************************************//**
+ *
  * debug_blink - Enable or disable a port from blinking.
  *
  * DESCRIPTION
@@ -1984,7 +2021,6 @@ enable_gre(port_info_t *info, uint32_t onOff)
  */
 
 void
-://github.com/pktgen/Pktgen-DPDK/issues/94
 enable_gre_eth(port_info_t *info, uint32_t onOff)
 {
 	if (onOff == ENABLE_STATE) {
@@ -3321,3 +3357,4 @@ void
 pktgen_quit(void)
 {
 	cli_quit();
+}

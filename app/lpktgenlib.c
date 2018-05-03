@@ -341,9 +341,8 @@ pktgen_seq(lua_State *L) {
 
 	switch (lua_gettop(L) ) {
 	default: return luaL_error(L, "seq, wrong number of arguments");
-	case 15:
-	//case 12:
-	//case 13:
+	case 12:
+	case 13:
 		break;
 	}
 	seqnum = luaL_checkinteger(L, 1);
@@ -793,6 +792,33 @@ pktgen_pcap(lua_State *L)
 		     enable_pcap(info, estate(what)) );
 
 	return 0;
+}
+
+/**************************************************************************//**
+ *
+ * pktgen_pcap_swap - Swap or add PCAP file to port.
+ *
+ * DESCRIPTION
+ * Swap or add PCAP file to port.
+ *
+ * RETURNS: N/A
+ *
+ * SEE ALSO:
+ */
+
+static int
+pktgen_pcap_swap(lua_State *L)
+{
+    char *filename; 
+
+    switch (lua_gettop(L) ) {
+    default: return luaL_error(L, "pcap_swap, wrong number of arguments");
+    case 1:
+        break;
+    }
+    filename = (char *)luaL_checkstring(L, 1);
+    pcap_swap(&pktgen.info[pktgen.portNum], filename);
+    return 0;
 }
 
 /**************************************************************************//**
@@ -3255,6 +3281,7 @@ static const char *lua_help_info[] = {
 	"icmp_echo      - Enable/disable ICMP echo support\n",
 	"send_arp       - Send a ARP request or GRATUITOUS_ARP\n",
 	"pcap           - Load a PCAP file\n",
+	"pcap swap      - Swap a PCAP file\n",
 	"ping4          - Send a Ping IPv4 packet (ICMP echo)\n",
 #ifdef INCLUDE_PING6
 	"ping6          - Send a Ping IPv6 packet (ICMP echo)\n",
@@ -3433,6 +3460,7 @@ static const luaL_Reg pktgenlib[] = {
 #endif
 
 	{"pcap",          pktgen_pcap},		/* Load a PCAP file */
+	{"pcap_swap",     pktgen_pcap_swap},/* Swap a PCAP file */
 	{"icmp_echo",     pktgen_icmp},		/* Enable/disable ICMP echo support */
 	{"send_arp",      pktgen_sendARP},	/* Send a ARP request or GRATUITOUS_ARP */
 

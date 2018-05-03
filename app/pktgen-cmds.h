@@ -117,6 +117,7 @@ void enable_short_pkts(port_info_t *info, uint32_t state);
 
 /* PCAP */
 void pcap_filter(port_info_t *info, char *str);
+int pcap_swap(port_info_t *info, char *filename);
 
 /* Range commands */
 void range_set_dest_mac(port_info_t *info,

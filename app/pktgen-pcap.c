@@ -256,7 +256,7 @@ pktgen_pcap_mbuf_ctor(struct rte_mempool *mp,
 
 	for (;; ) {
 		if ( (i & 0x3ff) == 0) {
-			scrn_printf(1, 1, "%c\b", "-\\|/"[(i >> 10) & 3]);
+			//scrn_printf(1, 1, "%c\b", "-\\|/"[(i >> 10) & 3]);
 			i++;
 		}
 
@@ -302,22 +302,17 @@ pktgen_pcap_parse(pcap_info_t *pcap, port_info_t *info, unsigned qid)
 	uint64_t pkt_sizes = 0;
 	char buffer[2048];
 	char name[RTE_MEMZONE_NAMESIZE];
-
+    
 	if ( (pcap == NULL) || (info == NULL) )
 		return -1;
-
 	_pcap_rewind(pcap);
-
 	snprintf(name, sizeof(name), "%-12s%d:%d", "PCAP TX", info->pid, qid);
-	scrn_printf(0, 0, "    Process: %-*s ", 18, name);
-
+	//scrn_printf(0, 0, "    Process: %-*s ", 18, name);
 	pkt_sizes = elt_count = i = 0;
-
 	/* The pcap_open left the file pointer to the first packet. */
 	while (_pcap_read(pcap, &hdr, buffer, sizeof(buffer)) > 0) {
 		/* Skip any jumbo packets or packets that are too small */
 		len = hdr.incl_len;
-
 		if (len < (ETHER_MIN_LEN - 4) )
 			len = (ETHER_MIN_LEN - 4);
 		else if (len > (ETHER_MAX_LEN - 4) )
@@ -325,30 +320,25 @@ pktgen_pcap_parse(pcap_info_t *pcap, port_info_t *info, unsigned qid)
 
 		elt_count++;
 
-		if ( (elt_count & 0x3ff) == 0)
-			scrn_printf(1, 1, "%c\b", "-\\|/"[i++ & 3]);
+		if ( (elt_count & 0x3ff) == 0){
+		    //scrn_printf(1, 1, "%c\b", "-\\|/"[i++ & 3]);
+        }
 
 		pkt_sizes += len;
 	}
-
 	/* If count is greater then zero then we allocate and create the PCAP mbuf pool. */
 	if (elt_count > 0) {
 		/* Create the average size packet */
 		info->pcap->pkt_size    = (pkt_sizes / elt_count);
 		info->pcap->pkt_count   = elt_count;
 		info->pcap->pkt_idx     = 0;
-
 		_pcap_rewind(pcap);
 
 		/* Round up the count and size to allow for TX ring size. */
 		if (elt_count < MAX_MBUFS_PER_PORT)
 			elt_count = MAX_MBUFS_PER_PORT;
 		elt_count = rte_align32pow2(elt_count);
-		scrn_printf(0, 0, "\r    Create: %-*s   \b", 16, name);
-        //if port already have pcap file with allocated m_pool
-        if(info->q[qid].pcap_mp)
-            rte_mempool_free(info->q[qid].pcap_mp); 
-
+		//scrn_printf(0, 0, "\r    Create: %-*s   \b", 16, name);
 		info->q[qid].pcap_mp = rte_mempool_create(
 		                name,
 		                elt_count,
@@ -362,19 +352,19 @@ pktgen_pcap_parse(pcap_info_t *pcap, port_info_t *info, unsigned qid)
 		                rte_lcore_to_socket_id(
 		                        0),
 		                MEMPOOL_F_DMA);
-		scrn_printf(0, 0, "\r");
+		//scrn_printf(0, 0, "\r");
 		if (info->q[qid].pcap_mp == NULL)
 			pktgen_log_panic("Cannot init port %d for PCAP packets",
 					 info->pid);
 
 		data_size = (info->pcap->pkt_count * MBUF_SIZE);
-		scrn_printf(0, 0,
+		/*scrn_printf(0, 0,
 		        "    Create: %-*s - Number of MBUFs %6u for %5d packets                 = %6u KB\n",
 		        16,
 		        name,
 		        elt_count,
 		        info->pcap->pkt_count,
-		        (data_size + 1023) / 1024);
+		        (data_size + 1023) / 1024);*/
 		pktgen.mem_used         += data_size;
 		pktgen.total_mem_used   += data_size;
 
