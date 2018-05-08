@@ -1089,24 +1089,26 @@ pktgen_set_page_size(uint32_t page_size)
 void
 pktgen_screen(int state)
 {
-	uint16_t rows;
-    
-	pktgen_display_get_geometry(&rows, NULL);
+    if(this_scrn){
+        uint16_t rows;
+        
+        pktgen_display_get_geometry(&rows, NULL);
 
-	if (state == DISABLE_STATE) {
-		if (!scrn_is_paused() ) {
-			scrn_pause();
-			scrn_cls();
-			scrn_setw(1);
-			scrn_pos(100, 1);
-		}
-	} else {
-		scrn_cls();
-		scrn_setw(pktgen.last_row + 1);
-		scrn_resume();
-		scrn_pos(100, 1);
-		pktgen_force_update();
-	}
+        if (state == DISABLE_STATE) {
+            if (!scrn_is_paused() ) {
+                scrn_pause();
+                scrn_cls();
+                scrn_setw(1);
+                scrn_pos(100, 1);
+            }
+        } else {
+            scrn_cls();
+            scrn_setw(pktgen.last_row + 1);
+            scrn_resume();
+            scrn_pos(100, 1);
+            pktgen_force_update();
+        }
+    }
 }
 
 /**************************************************************************//**
@@ -1593,7 +1595,7 @@ pcap_swap(port_info_t *info, char *filename){
             return -1;
         }
     }
-    //pktgen_screen(ENABLE_STATE);
+    pktgen_screen(ENABLE_STATE);
     return 0;
 }
 
