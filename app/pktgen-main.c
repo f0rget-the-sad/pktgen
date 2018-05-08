@@ -442,6 +442,7 @@ main(int argc, char **argv)
 			scrn_setw(1);
 			scrn_pos(this_scrn->nrows, 1);
 		}
+
 		lua_init_socket(pktgen.L,
 				&pktgen.thread,
 				pktgen.hostname,
