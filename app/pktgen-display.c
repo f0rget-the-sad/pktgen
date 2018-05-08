@@ -159,9 +159,9 @@ pktgen_display_set_geometry(uint16_t rows, uint16_t cols)
 void
 pktgen_display_get_geometry(uint16_t *rows, uint16_t *cols)
 {
-	if (rows != NULL)
+	if (rows != NULL){
 		*rows = this_scrn->nrows;
-
+    }
 	if (cols != NULL)
 		*cols = this_scrn->ncols;
 }
